@@ -59,4 +59,10 @@ class AppController extends Controller
             $this->set('_serialize', true);
         }
     }
+
+    public function template($name)
+    {
+        $this->viewBuilder()->layout('ajax');
+        $this->viewBuilder()->template($name);
+    }
 }

@@ -1,0 +1,23 @@
+{
+  "name": "ENS",
+  "homepage": "http://ens.ytel.com",
+  "authors": [
+    "Sunny C <sunny@ytel.com>"
+  ],
+  "description": "Emergency Notification System",
+  "main": "",
+  "moduleType": [],
+  "license": "N/A",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angularfire": "~1.1.3",
+    "ng-file-upload-shim": "~10.1.8"
+  }
+}

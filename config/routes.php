@@ -21,6 +21,8 @@
 use Cake\Core\Plugin;
 use Cake\Routing\Router;
 
+Router::extensions(['json']);
+
 /**
  * The default class to use for all routes
  *
@@ -47,7 +49,7 @@ Router::scope('/', function ($routes) {
      * its action called 'display', and we pass a param to select the view file
      * to use (in this case, src/Template/Pages/home.ctp)...
      */
-    $routes->connect('/', ['controller' => 'Pages', 'action' => 'display', 'home']);
+    $routes->connect('/', ['controller' => 'Admin', 'action' => 'index', '']);
 
     /**
      * ...and connect the rest of 'Pages' controller's URLs.
