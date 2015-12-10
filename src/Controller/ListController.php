@@ -38,4 +38,23 @@ class ListController extends AppController
         $this->set(compact('response'));
 		$this->set('_serialize', ['response']);
     }
+
+    public function ajaxCountryPhoneCodeSelect()
+    {
+        $country = TableRegistry::get('Countries');
+
+        $response = $country->find('all', [
+            'fields' => [
+                'country_id',
+                'phone_code',
+                'name'
+            ],
+            'order' => [
+                'country_id'
+            ]
+        ]);
+
+        $this->set(compact('response'));
+		$this->set('_serialize', ['response']);
+    }
 }

@@ -9,10 +9,100 @@ angular.module('ensApp.listManagement', ['ngRoute'])
                 controller: 'ListManagementCtrl'
             });
         }])
-    .controller('ListManagementCtrl', ['$scope', '$http', function($scope, $http) {
+    .controller('ListManagementCtrl', ['$scope', '$http', 'Upload', '$mdDialog', function($scope, $http, Upload, $mdDialog) {
             var scope = $scope;
-            
+
             $http.get('/List/ajaxListSelect.json').then(function(response) {
                 scope.listOption = response.data.response;
             });
+
+            scope.input = {
+                country_id: '1'
+            };
+
+            $http.get('/List/ajaxCountryPhoneCodeSelect.json').then(function(response) {
+                scope.countryPhoneCodeOption = response.data.response;
+            });
+
+            scope.addNumber = function(ev) {
+                $http.post('/Number/addNumber.json', scope.input).then(function(response) {
+                    if (response.data.response.status == 1) {
+                        scope.input = {
+                            country_id: '1'
+                        };
+
+                        $mdDialog.show(
+                            $mdDialog.alert()
+                            .parent(angular.element(document.querySelector('body')))
+                            .clickOutsideToClose(true)
+                            .title('Success')
+                            .textContent('Number Added.')
+                            .ariaLabel('Alert Success')
+                            .ok('Got it!')
+                            .targetEvent(ev)
+                            );
+                    } else {
+                        $mdDialog.show(
+                            $mdDialog.alert()
+                            .parent(angular.element(document.querySelector('body')))
+                            .clickOutsideToClose(true)
+                            .title('Error')
+                            .textContent(response.data.response.message)
+                            .ariaLabel('Alert Failure')
+                            .ok('Got it!')
+                            .targetEvent(ev)
+                            );
+                    }
+                }).then(function() {
+                    $mdDialog.show(
+                        $mdDialog.alert()
+                        .parent(angular.element(document.querySelector('body')))
+                        .clickOutsideToClose(true)
+                        .title('Error')
+                        .textContent('Something went wrong, please try again later.')
+                        .ariaLabel('Alert Error')
+                        .ok('Got it!')
+                        .targetEvent(ev)
+                        );
+                });
+            };
+
+            scope.upload = function(ev) {
+                Upload.upload({
+                    url: '/Number/upload.json',
+                    data: scope.addNewList
+                }).then(function(resp) {
+                    console.log('Success ' + resp.config.data.file.name + 'uploaded. Response: ' + resp.data);
+                    scope.addNewList = {};
+
+                    $mdDialog.show(
+                        $mdDialog.alert()
+                        .parent(angular.element(document.querySelector('body')))
+                        .clickOutsideToClose(true)
+                        .title('Success')
+                        .textContent('List created, data uploaded and processed.')
+                        .ariaLabel('Alert Success')
+                        .ok('Got it!')
+                        .targetEvent(ev)
+                        );
+
+                }, function(resp) {
+                    console.log('Error status: ' + resp.status);
+
+                    $mdDialog.show(
+                        $mdDialog.alert()
+                        .parent(angular.element(document.querySelector('body')))
+                        .clickOutsideToClose(true)
+                        .title('Error')
+                        .textContent('Something went wrong, please try again later.')
+                        .ariaLabel('Alert Error')
+                        .ok('Got it!')
+                        .targetEvent(ev)
+                        );
+
+                }, function(evt) {
+                    var progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
+                    console.log('progress: ' + progressPercentage + '% ' + evt.config.data.file.name);
+                });
+            };
         }]);

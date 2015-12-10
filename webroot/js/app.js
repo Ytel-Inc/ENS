@@ -6,9 +6,15 @@ angular.module('ensApp', [
     'ngAria',
     'ngAnimate',
     'ngMaterial',
+    
+    'ngFileUpload',
+    'firebase',
+    
     'ensApp.dashboard',
     'ensApp.listManagement',
-    'ensApp.smsNotification'
+    'ensApp.smsNotification',
+    'ensApp.audioManagement',
+    'ensApp.callNotification',
 ]).config(['$routeProvider', '$mdThemingProvider', function($routeProvider, $mdThemingProvider) {
         $routeProvider.otherwise({redirectTo: '/dashboard'});
 

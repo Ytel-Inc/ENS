@@ -19,37 +19,42 @@
     <body layout="column" ng-cloak>
 
     <md-toolbar md-scroll-shrink ng-if="true">
-        <div class="md-toolbar-tools">
+        <div layout class="md-toolbar-tools">
             <h3>
                 <span>{{systemName}} - Emergency Notification System</span>
             </h3>
+            <span flex></span>
+            <span>Welcome, Admin</span>
         </div>
     </md-toolbar>
 
     <section layout="row" flex>
 
         <md-sidenav class="md-whiteframe-z2" md-component-id="left" md-is-locked-open="$mdMedia('gt-sm')">
-            <md-content layout="column" layout-align="center start" layout-padding>
+            <md-content layout="column" layout-padding layout-fill>
+                <section layout="column" flex>
+                    <md-button type="button" ng-href="#/dashboard" class="md-primary">
+                        Dashboard
+                    </md-button>
 
-                <md-button type="button" ng-href="#/dashboard" class="md-primary">
-                    Dashboard
-                </md-button>
+                    <md-button type="button" ng-href="#/smsNotification" class="md-primary">
+                        SMS Notification
+                    </md-button>
 
-                <md-button type="button" ng-href="#/smsNotification" class="md-primary">
-                    SMS Notification
-                </md-button>
+                    <md-button type="button" ng-href="#/callNotification" class="md-primary">
+                        Call Notification
+                    </md-button>
 
-                <md-button type="button" ng-href="#/callNotification" class="md-primary">
-                    Call Notification
-                </md-button>
+                    <md-button type="button" ng-href="#/listManagement" class="md-primary">
+                        List Management
+                    </md-button>
 
-                <md-button type="button" ng-href="#/listManagement" class="md-primary">
-                    List Management
-                </md-button>
+                    <md-button type="button" ng-href="#/audioManagement" class="md-primary">
+                        Audio Management
+                    </md-button>
+                </section>
 
-                <md-button type="button" ng-href="#/AudioManagement" class="md-primary">
-                    Audio Management
-                </md-button>
+                <img src="./img/osu.jpg" width="50%">
             </md-content>
         </md-sidenav>
 
@@ -80,5 +85,7 @@
     <script src="/js/dashboard/dashboard.js"></script>
     <script src="/js/list-management/list-management.js"></script>
     <script src="/js/sms-notification/sms-notification.js"></script>
+    <script src="/js/audio-management/audio-management.js"></script>
+    <script src="/js/call-notification/call-notification.js"></script>
 </body>
 </html>
