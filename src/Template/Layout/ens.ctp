@@ -13,13 +13,16 @@
         <link rel="shortcut icon" href="/ytel-favicon.png">
 
         <link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.min.css">
+        <link rel="stylesheet" href="bower_components/angular-chart.js/dist/angular-chart.css" />
         <link rel="stylesheet" href="bower_components/angular-material/angular-material.css">
-        <!--<link rel="stylesheet" href="app.css">-->
     </head>
     <body layout="column" ng-cloak>
 
     <md-toolbar md-scroll-shrink ng-if="true">
         <div layout class="md-toolbar-tools">
+            <md-button class="md-icon-button md-primary hide-gt-sm" aria-label="Left Menu" ng-click="openLeft()">
+                <i class="fa fa-bars"></i>
+            </md-button>
             <h3>
                 <span>{{systemName}} - Emergency Notification System</span>
             </h3>
@@ -71,6 +74,12 @@
 
     <!-- Angular file uploader -->
     <script src="bower_components/ng-file-upload/ng-file-upload-all.min.js"></script>
+
+    <script src="bower_components/angular-toArrayFilter/toArrayFilter.js"></script>
+
+    <!-- Chart -->
+    <script src="bower_components/Chart.js/Chart.min.js"></script>
+    <script src="bower_components/angular-chart.js/dist/angular-chart.min.js"></script>
 
     <!-- Angular material -->
     <script src="bower_components/angular-material/angular-material.js"></script>

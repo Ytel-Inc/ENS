@@ -24,30 +24,36 @@
 
         <md-button type="button" 
                    class="md-primary md-raised"
-                   ng-click="addNumber()">Add Number</md-button>
+                   ng-click="addNumber($event)">Add Number</md-button>
     </form>
 </fieldset>
 
 <fieldset>
     <legend>Add New List</legend>
     <form name="addNewListForm" layout="column">
-        <md-input-container flex>
-            <md-button name="file"
-                       type="file"
-                       class="md-raised"
-                       ngf-select
-                       ng-model="addNewList.file"
-                       accept="text/*"
-                       ngf-max-size="10MB"
-                       required>
-                Select File</md-button>
-        </md-input-container>
+        <div layout>
+            <md-input-container flex="20">
+                <md-button name="file"
+                           type="file"
+                           class="md-raised"
+                           ngf-select
+                           ng-model="addNewList.file"
+                           ng-disabled="processing"
+                           accept="text/*"
+                           ngf-max-size="10MB"
+                           required>
+                    Select File</md-button>
+            </md-input-container>
+
+            <p flex>{{addNewList.file.name}}</p>
+        </div>
 
         <md-input-container flex>
             <label>List Name</label>
             <input name="list_name"
                    type="text"
                    ng-model="addNewList.list_name"
+                   ng-disabled="processing"
                    maxlength="100"
                    required/>
         </md-input-container>
@@ -66,6 +72,8 @@
         <md-button type="button" 
                    class="md-primary md-raised"
                    ng-click="upload($evant)"
-                   ng-disabled="addNewListForm.$invalid">Upload File & Add New List</md-button>
+                   ng-disabled="addNewListForm.$invalid || processing">Upload File & Add New List</md-button>
+
+        <md-progress-linear md-mode="{{progressPercentage>=100 ? 'in':''}}determinate" value="{{progressPercentage}}"></md-progress-linear>
     </form>
 </fieldset>

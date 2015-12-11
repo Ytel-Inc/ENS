@@ -29,15 +29,22 @@ class NumberController extends AppController
     {
         try {
             $countryTable = TableRegistry::get('Countries');
+            $numberTable = TableRegistry::get('Numbers');
+            
             $country = $countryTable->get($this->request->data['country_id']);
 
-            $numberTable = TableRegistry::get('Numbers');
+            $dateTimeUtc = new \DateTimeZone('UTC');
+            $now = new \DateTime('now', $dateTimeUtc);
 
-            // Check if number is in the list
+            $responseM360 = $this->M360->optInTfn($this->request->data['phone_number']);
+
+
             $data = [
                 'number_list_id' => $this->request->data['number_list_id'],
                 'country_code' => $country->phone_code,
-                'number' => $this->request->data['phone_number']
+                'phone_number' => $this->request->data['phone_number'],
+                'opt_in_tfn' => (bool) $responseM360['Message360']['OptIns']['OptIn']['Status'] === 'updated',
+                'add_datetime' => $now
             ];
             $number = $numberTable->newEntity($data);
             $numberTable->save($number);
@@ -101,13 +108,13 @@ class NumberController extends AppController
 
                 $responseM360 = $this->M360->optInTfn($row[1]);
 
-                $response['d'][] = $responseM360;
+//                $response['d'][] = $responseM360;
 
                 $newNumberData = [
                     'number_list_id' => $numberList->number_list_id,
                     'country_code' => $row[0],
                     'phone_number' => $row[1],
-                    'opt_in_tfn' => (bool) $responseM360['Message360']['Messages']['Message'][0]['Status'] === 'success',
+                    'opt_in_tfn' => (bool) $responseM360['Message360']['OptIns']['OptIn']['Status'] === 'updated',
                     'add_datetime' => $now
                 ];
 

@@ -22,7 +22,7 @@ class SendSmsShell extends Shell
 
             $firebase = new \Firebase\FirebaseLib($DEFAULT_URL, $DEFAULT_TOKEN);
 
-            if( !isset($this->args[0]) ) {
+            if (!isset($this->args[0])) {
                 throw new \Exception('Missing queue ID');
             }
 
@@ -39,7 +39,7 @@ class SendSmsShell extends Shell
                 'conditions' => [
                     'type' => 1,
                     'send_queue_id' => $this->args[0],
-                    'status' => 0,
+//                    'status' => 0,
                     'OR' => [
                         'next_try_datetime IS NULL',
                         'next_try_datetime <=' => $now
@@ -89,24 +89,7 @@ class SendSmsShell extends Shell
 
             // Send SMS
             foreach ($numbers as $number) {
-                // Set to pending...
-                $firebase->set($DEFAULT_PATH.'/'.$firstQueue->send_queue_id.'/numbers/'.$number->number_id.'/status', 2);
-
-//                sleep(5);
-
-                $this->out($number);
-                $response = $this->M360->sendSms($number->phone_number, $firstQueue->message, $number->country_code);
-                $this->out(json_encode($response));
-
-//                sleep(5);
-
-                if( $response['Message360']['Messages']['Message'][0]['Status'] === 'success' ) {
-                    // Set to sent...
-                    $firebase->set($DEFAULT_PATH.'/'.$firstQueue->send_queue_id.'/numbers/'.$number->number_id.'/status', 3);
-                } else {
-                    // Set to fail...
-                    $firebase->set($DEFAULT_PATH.'/'.$firstQueue->send_queue_id.'/numbers/'.$number->number_id.'/status', 4);
-                }
+                shell_exec(ROOT.DS.'bin'.DS.'cake SendSmsBackground '.$firstQueue->send_queue_id.' '.$number->number_id.' '.$number->country_code.' '.$number->phone_number.' "'.$firstQueue->message.'" > /dev/null 2>/dev/null &');
             }
 
             // Mark as done...

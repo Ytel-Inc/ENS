@@ -114,7 +114,9 @@ class CallController extends AppController
 
 //            $response['q'] = $queue;
 //            $response['m360'] = $playAudioResponse;
-
+            if($queue->audio->message) {
+                $Say = $queue->audio->message;
+            }
             $Play = 'https://'.Configure::read('Message360.systemResponseDomain').'/files/'.$queue->audio->server_name;
             $Hangup = '';
 
@@ -124,8 +126,8 @@ class CallController extends AppController
         }
 
 
-        $this->set(compact('Play', 'Hangup'));
-        $this->set('_serialize', ['Play', 'Hangup']);
+        $this->set(compact('Say', 'Play', 'Hangup'));
+        $this->set('_serialize', ['Say', 'Play', 'Hangup']);
     }
 
     public function ajaxResponseCallFallback($uniqueId)
