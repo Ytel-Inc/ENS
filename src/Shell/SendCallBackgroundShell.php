@@ -9,7 +9,7 @@ use Cake\Console\Shell;
 use Cake\ORM\TableRegistry;
 use Cake\Utility\Hash;
 
-class SendSmsBackgroundShell extends Shell
+class SendCallBackgroundShell extends Shell
 {
     public $tasks = ['M360'];
 
@@ -18,7 +18,7 @@ class SendSmsBackgroundShell extends Shell
         try {
             $DEFAULT_URL = 'https://ens.firebaseio.com/';
             $DEFAULT_TOKEN = Configure::read('Firebase.token');
-            $DEFAULT_PATH = '/sms';
+            $DEFAULT_PATH = '/call';
 
             $firebase = new \Firebase\FirebaseLib($DEFAULT_URL, $DEFAULT_TOKEN);
 
@@ -39,24 +39,24 @@ class SendSmsBackgroundShell extends Shell
             }
 
             if( !isset($this->args[4]) ) {
-                throw new \Exception('Missing message');
+                throw new \Exception('Missing unique ID');
             }
 
-            list($queueId, $numberId, $countryCode, $phoneNumber, $message) = $this->args;
+            list($queueId, $numberId, $countryCode, $phoneNumber, $uniqueId) = $this->args;
 
             // Set to pending...
             $firebase->set($DEFAULT_PATH.'/'.$queueId.'/numbers/'.$numberId.'/status', 2);
 
-            $response = $this->M360->sendSms($phoneNumber, $message, $countryCode);
-            $this->out(json_encode($response));
-            if ($response['Message360']['ResponseStatus'] && $response['Message360']['Messages']['Message'][0]['Status'] === 'success') {
+            $response = $this->M360->sendCall($phoneNumber, $uniqueId, $countryCode);
+            
+            if ($response['Message360']['ResponseStatus'] && $response['Message360']['Call'][0]['Status'] === 'In-queue') {
                 // Set to sent...
+                $firebase->set($DEFAULT_PATH.'/'.$queueId.'/number_match/'.$response['Message360']['Call'][0]['CallSid'], (int)$numberId);
                 $firebase->set($DEFAULT_PATH.'/'.$queueId.'/numbers/'.$numberId.'/status', 3);
-//                $firebase->push($DEFAULT_PATH.'/'.$queueId.'/success', $numberId);
+
             } else {
                 // Set to fail...
                 $firebase->set($DEFAULT_PATH.'/'.$queueId.'/numbers/'.$numberId.'/status', 4);
-//                $firebase->push($DEFAULT_PATH.'/'.$queueId.'/fail', $numberId);
             }
         } catch (\Exception $ex) {
             $this->out($ex->getMessage());

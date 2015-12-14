@@ -50,20 +50,22 @@
 <fieldset ng-show="sendQueueId">
     <legend>Status</legend>
     <p>
-        Current Job ID: {{sendQueueId}} | Status:
+        Current Job ID: {{sendQueueId}} | Number Count: {{numberCount}} |
+<!--        Status:
         <span ng-switch="currentQueue.status">
             <span ng-switch-when="2">In progress...</span>
             <span ng-switch-when="3">Finished</span>
             <span ng-switch-when="4">Fail</span>
             <span ng-switch-default>In Queue...</span>
-        </span>
+        </span>-->
     </p>
-    <md-progress-linear class="md-primary"
+<!--    <md-progress-linear class="md-primary"
                         md-mode="indeterminate"
-                        ng-show="currentQueue.status == 2"></md-progress-linear>
+                        ng-show="currentQueue.status == 2"></md-progress-linear>-->
 
     <md-content layout="row">
-        <md-list flex class="table-fixed-width md-whiteframe-z1">
+        <md-list flex class="table-fixed-width md-whiteframe-z1"
+                 ng-hide="numberCount > 2000">
             <md-list layout="row">
                 <md-subheader flex>Number</md-subheader>
                 <md-subheader flex>Status</md-subheader>

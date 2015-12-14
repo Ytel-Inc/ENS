@@ -26,7 +26,9 @@ angular.module('ensApp', [
         // Configure all charts
         ChartJsProvider.setOptions({
             colours: ['#FF5252', '#FF8A80'],
-            responsive: false
+            responsive: false,
+            animationEasing: 'linear',
+            animationSteps: 10
         });
     }])
     .controller('MainCtrl', ['$scope', '$mdSidenav', function($scope, $mdSidenav) {

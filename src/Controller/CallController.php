@@ -24,6 +24,7 @@ class CallController extends AppController
         try {
             $numberListTable = TableRegistry::get('NumberLists');
             $sendQueueTable = TableRegistry::get('SendQueues');
+            $numberTable = TableRegistry::get('Numbers');
 
             // Check if list exists
             $numberList = $numberListTable->find('all',
@@ -36,14 +37,27 @@ class CallController extends AppController
             if (!$numberList->count()) {
                 throw new \Exception('Cannot locate list.');
             }
+            
+            $number = $numberTable->find('all', [
+                'conditions' => [
+                    'number_list_id' => $this->request->data['call']['number_list_id']
+                ]
+            ]);
+
+            $numberCount = $number->count();
+            if( !$numberCount ) {
+                throw new \Exception('No numbers in the list');
+            }
 
             $data = [
                 'unique_id' => Text::uuid(),
                 'type' => 2,
                 'number_list_id' => $this->request->data['call']['number_list_id'],
                 'status' => 0,
+                'message' => $this->request->data['call']['message'],
                 'audio_id' => $this->request->data['call']['audio_id'],
                 'request_by' => null,
+                'total' => $numberCount,
                 'create_datetime' => new \DateTime('now', new \DateTimeZone('UTC'))
             ];
             $sendQueue = $sendQueueTable->newEntity($data);
@@ -55,6 +69,7 @@ class CallController extends AppController
 
             $response['status'] = 1;
             $response['sendQueueId'] = $sendQueue->send_queue_id;
+            $response['numberCount'] = $numberCount;
         } catch (\Exception $ex) {
             $response['status'] = 0;
             $response['message'] = $ex->getMessage();
@@ -114,11 +129,17 @@ class CallController extends AppController
 
 //            $response['q'] = $queue;
 //            $response['m360'] = $playAudioResponse;
-            if($queue->audio->message) {
-                $Say = $queue->audio->message;
+            if($queue->message) {
+                $Say = $queue->message;
+            } else {
+                $Say = '';
             }
+            
             $Play = 'https://'.Configure::read('Message360.systemResponseDomain').'/files/'.$queue->audio->server_name;
             $Hangup = '';
+
+
+            die('<Response><Say>'.$Say.'</Say><Play>'.$Play.'</Play><Hangup /></Response>');
 
         } catch (\Exception $ex) {
             $response['status'] = 0;

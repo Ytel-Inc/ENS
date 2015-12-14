@@ -8,6 +8,7 @@ use Cake\Core\Configure;
 use Cake\Console\Shell;
 use Cake\ORM\TableRegistry;
 use Cake\Utility\Hash;
+use Cake\Cache\Cache;
 
 class SendCallShell extends Shell
 {
@@ -74,8 +75,14 @@ class SendCallShell extends Shell
                 ]
             ]);
 
+            foreach ($numbers as $number) {
+                Cache::writeMany();
+            }
+
+
             // Format the number for Firebase
             $numberForFb = Hash::combine($numbers->toArray(), '{n}.number_id', '{n}');
+
 
             // Put the all the number on Firebase
             $firebase->set($DEFAULT_PATH.'/'.$firstQueue->send_queue_id.'/numbers', $numberForFb);
@@ -89,25 +96,8 @@ class SendCallShell extends Shell
 
             // Send Call
             foreach ($numbers as $number) {
-                // Set to pending...
-                $firebase->set($DEFAULT_PATH.'/'.$firstQueue->send_queue_id.'/numbers/'.$number->number_id.'/status', 2);
-
-                $this->out($number);
-                $response = $this->M360->sendCall($number->phone_number, $firstQueue->unique_id, $number->country_code);
-                $this->out(json_encode($response));
-
-
-
-                if( $response['Message360']['Call'][0]['Status'] === 'In-queue' ) {
-                    // Add CallSid to number_id match
-                    $firebase->set($DEFAULT_PATH.'/'.$firstQueue->send_queue_id.'/number_match/'.$response['Message360']['Call'][0]['CallSid'], $number->number_id);
-
-                    // Set to sent...
-                    $firebase->set($DEFAULT_PATH.'/'.$firstQueue->send_queue_id.'/numbers/'.$number->number_id.'/status', 3);
-                } else {
-                    // Set to fail...
-                    $firebase->set($DEFAULT_PATH.'/'.$firstQueue->send_queue_id.'/numbers/'.$number->number_id.'/status', 4);
-                }
+                shell_exec(ROOT.DS.'bin'.DS.'cake SendCallBackground '.$firstQueue->send_queue_id.' '.$number->number_id.' '.$number->country_code.' '.$number->phone_number.' '.$firstQueue->unique_id.' > /dev/null 2>/dev/null &');
+                usleep(100000);
             }
 
             // Mark as done...

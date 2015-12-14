@@ -59,38 +59,49 @@ class SendSmsShell extends Shell
             $firstQueue->start_datetime = $now;
             $sendQueueTable->save($firstQueue);
 
-            $this->out(json_encode($firstQueue));
-
-            $numbers = $numberTable->find('all',
-                [
-                'fields' => [
-                    'number_id',
-                    'number_list_id',
-                    'country_code',
-                    'phone_number'
-                ],
-                'conditions' => [
-                    'number_list_id' => $firstQueue->number_list_id
-                ]
-            ]);
-
-            // Format the number for Firebase
-            $numberForFb = Hash::combine($numbers->toArray(), '{n}.number_id', '{n}');
-
-            // Put the all the number on Firebase
-            $firebase->set($DEFAULT_PATH.'/'.$firstQueue->send_queue_id.'/numbers', $numberForFb);
-
-            $this->out(json_encode($numbers));
-
             // Mark as sending...
             $firebase->set($DEFAULT_PATH.'/'.$firstQueue->send_queue_id.'/status', 2);
             $firstQueue->status = 2;
             $sendQueueTable->save($firstQueue);
 
-            // Send SMS
-            foreach ($numbers as $number) {
-                shell_exec(ROOT.DS.'bin'.DS.'cake SendSmsBackground '.$firstQueue->send_queue_id.' '.$number->number_id.' '.$number->country_code.' '.$number->phone_number.' "'.$firstQueue->message.'" > /dev/null 2>/dev/null &');
+            $page = 1;
+            while (true) {
+                $numbers = $numberTable->find('all',
+                    [
+                    'fields' => [
+                        'number_id',
+                        'number_list_id',
+                        'country_code',
+                        'phone_number'
+                    ],
+                    'conditions' => [
+                        'number_list_id' => $firstQueue->number_list_id
+                    ],
+                    'limit' => 5000,
+                    'page' => $page
+                ]);
+                $list = $numbers->toArray();
+                if( !count($list) ) {
+                    break;
+                }
+
+                // Format the number for Firebase
+                $numberForFb = Hash::combine($list, '{n}.number_id', '{n}');
+                $this->out(json_encode($numberForFb));
+                $this->out($page);
+                // Put the all the number on Firebase
+                $firebase->update($DEFAULT_PATH.'/'.$firstQueue->send_queue_id.'/numbers', $numberForFb);
+
+                // Send SMS
+                foreach ($numbers as $number) {
+                    shell_exec(ROOT.DS.'bin'.DS.'cake SendSmsBackground '.$firstQueue->send_queue_id.' '.$number->number_id.' '.$number->country_code.' '.$number->phone_number.' "THIS IS A TEST! '.$firstQueue->message.'" > /dev/null 2>/dev/null &');
+                    usleep(10000);
+                }
+
+                $page++;
             }
+
+            
 
             // Mark as done...
             $firebase->set($DEFAULT_PATH.'/'.$firstQueue->send_queue_id.'/status', 3);

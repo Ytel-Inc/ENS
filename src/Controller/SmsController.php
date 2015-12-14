@@ -29,6 +29,7 @@ class SmsController extends AppController
         try {
             $numberListTable = TableRegistry::get('NumberLists');
             $sendQueueTable = TableRegistry::get('SendQueues');
+            $numberTable = TableRegistry::get('Numbers');
 
             // Check if list exists
             $numberList = $numberListTable->find('all',
@@ -40,6 +41,17 @@ class SmsController extends AppController
 
             if (!$numberList->count()) {
                 throw new \Exception('Cannot locate list.');
+            }
+
+            $number = $numberTable->find('all', [
+                'conditions' => [
+                    'number_list_id' => $this->request->data['sms']['number_list_id']
+                ]
+            ]);
+
+            $numberCount = $number->count();
+            if( !$numberCount ) {
+                throw new \Exception('No numbers in the list');
             }
 
             if (!isset($this->request->data['sms']['message'])) {
@@ -55,6 +67,7 @@ class SmsController extends AppController
                 'status' => 0,
                 'message' => $this->request->data['sms']['message'],
                 'request_by' => null,
+                'total' => $numberCount,
                 'create_datetime' => new \DateTime('now', new \DateTimeZone('UTC'))
             ];
             $sendQueue = $sendQueueTable->newEntity($data);
@@ -66,6 +79,7 @@ class SmsController extends AppController
 
             $response['status'] = 1;
             $response['sendQueueId'] = $sendQueue->send_queue_id;
+            $response['numberCount'] = $numberCount;
         } catch (\Exception $ex) {
             $response['status'] = 0;
             $response['message'] = $ex->getMessage();
@@ -75,4 +89,6 @@ class SmsController extends AppController
         $this->set(compact('response'));
         $this->set('_serialize', ['response']);
     }
+
+//    public function
 }

@@ -15,6 +15,8 @@
         <link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.min.css">
         <link rel="stylesheet" href="bower_components/angular-chart.js/dist/angular-chart.css" />
         <link rel="stylesheet" href="bower_components/angular-material/angular-material.css">
+
+        <link rel="stylesheet" href="css/app.css">
     </head>
     <body layout="column" ng-cloak>
 
